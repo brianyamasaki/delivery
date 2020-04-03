@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator
+} from 'react-native';
 import { Text, Button, Card, Image } from 'react-native-elements';
 import LocationForm from '../components/LocationForm';
 import { Context as ResultsContext } from '../context/ResultsContext';
@@ -11,7 +17,7 @@ const HomeScreen = ({ navigation }) => {
   const { state, fetchResults } = React.useContext(ResultsContext);
   let flatListRef;
   return (
-    <View style={styles.containerStyle}>
+    <ScrollView style={styles.containerStyle}>
       <LocationForm
         value={location}
         onChangeText={setLocation}
@@ -21,6 +27,7 @@ const HomeScreen = ({ navigation }) => {
         }}
       />
       {state.errorMessage ? <Text>{state.errorMessage}</Text> : null}
+      {state.refreshing ? <ActivityIndicator size={30} /> : null}
       <FlatList
         style={styles.listStyle}
         refreshing={state.refreshing}
@@ -41,7 +48,7 @@ const HomeScreen = ({ navigation }) => {
         }}
       />
       <Map />
-    </View>
+    </ScrollView>
   );
 };
 

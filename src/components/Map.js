@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
+import { useNavigation } from '@react-navigation/native';
 import { Context as ResultsContext } from '../context/ResultsContext';
 
 const chooseInitialRegion = results => {
@@ -41,8 +42,8 @@ const getResultRegion = results => {
     };
   } else {
     const coordStats = chooseInitialRegion(results);
-    const latDelta = (coordStats.latMax - coordStats.latMin) * 2;
-    const longDelta = (coordStats.longMax - coordStats.longMin) * 2;
+    const latDelta = (coordStats.latMax - coordStats.latMin) * 1.5;
+    const longDelta = (coordStats.longMax - coordStats.longMin) * 1.5;
     return {
       longitude: coordStats.longCenter,
       latitude: coordStats.latCenter,
@@ -53,22 +54,30 @@ const getResultRegion = results => {
 };
 
 const Map = () => {
+  const navigation = useNavigation();
   const { state } = React.useContext(ResultsContext);
 
   if (state.results.length === 0) {
     return null;
   }
   const region = getResultRegion(state.results);
-  console.log(region);
 
   return (
-    <MapView style={styles.mapStyle} initialRegion={region} region={region}>
+    <MapView
+      style={styles.mapStyle}
+      initialRegion={region}
+      region={region}
+      onMarkerPress={event =>
+        navigation.navigate('Details', { id: event.nativeEvent.id })
+      }
+    >
       {state.results.map(item => {
         return (
           <Marker
             title={item.name}
             key={item.id}
             coordinate={item.coordinates}
+            identifier={item.id}
           />
         );
       })}

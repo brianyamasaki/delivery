@@ -29,7 +29,11 @@ function App() {
             component={HomeScreen}
             options={{ title: 'Choices' }}
           />
-          <Stack.Screen name='Details' component={DetailsScreen} />
+          <Stack.Screen
+            name='Details'
+            component={DetailsScreen}
+            options={{ title: 'Business Details' }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </ResultsProvider>

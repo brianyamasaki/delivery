@@ -1,18 +1,34 @@
 import * as React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, FlatList, Image } from 'react-native';
 import { Text, Button } from 'react-native-elements';
 import { Context as ResultsContext } from '../context/ResultsContext';
 import PhoneNumber from '../components/PhoneNumber';
 import WebUrl from '../components/WebUrl';
+import yelp from '../api/yelp';
 
 const DetailsScreen = ({ route, navigation }) => {
-  const { state } = React.useContext(ResultsContext);
+  const [result, setResult] = React.useState(null);
   const { id } = route.params;
+  let errorMessage = '';
 
-  if (state.results.length === 0) return null;
+  const getResult = async id => {
+    try {
+      const response = await yelp.get(`/${id}`);
+      setResult(response.data);
+    } catch (err) {}
+  };
 
-  const result = state.results.find(result => result.id === id);
-  console.log(result);
+  React.useEffect(() => {
+    getResult(id);
+  }, []);
+
+  if (!result) {
+    return (
+      <View>
+        {errorMessage ? <Text>Something bad happened...</Text> : null}
+      </View>
+    );
+  }
   return (
     <View>
       <Text h3 style={styles.headerStyle}>
@@ -34,6 +50,21 @@ const DetailsScreen = ({ route, navigation }) => {
       {result.url ? (
         <WebUrl style={styles.addressStyle} url={result.url} />
       ) : null}
+      <FlatList
+        data={result.photos}
+        horizontal
+        keyExtractor={photoUrl => photoUrl}
+        renderItem={({ item }) => {
+          return <Image source={{ uri: item }} style={styles.photoStyle} />;
+        }}
+      />
+      {result.transactions
+        ? result.transactions.map((type, i) => (
+            <Text key={i} style={styles.transactionStyle}>
+              Offers {type}
+            </Text>
+          ))
+        : null}
     </View>
   );
 };
@@ -48,6 +79,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginVertical: 2
+  },
+  photoStyle: {
+    width: 300,
+    height: 200
+  },
+  transactionStyle: {
+    textAlign: 'center',
+    fontSize: 18
   }
 });
 

@@ -44,7 +44,6 @@ const fetchResults = dispatch => async (bundle, categories) => {
     type: FETCH_START
   });
   try {
-    console.log(parms);
     const response = await yelpApi.get('/search', {
       params: {
         term: 'restaurants',
