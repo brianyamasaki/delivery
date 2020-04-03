@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Text, Button, Card, Image } from 'react-native-elements';
 import LocationForm from '../components/LocationForm';
+import Categories from '../components/Categories';
 import { Context as ResultsContext } from '../context/ResultsContext';
 import ResultsDetails from '../components/ResultsDetails';
 import Map from '../components/Map';
