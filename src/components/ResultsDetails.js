@@ -16,7 +16,7 @@ const ResultsDetail = ({ result }) => {
 
 const styles = StyleSheet.create({
   viewStyle: {
-    marginLeft: 15
+    marginRight: 5
   },
   imageStyle: {
     width: 250,

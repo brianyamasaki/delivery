@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, FlatList } from 'react-native';
+import { View, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import { Text, Button, Card, Image } from 'react-native-elements';
 import LocationForm from '../components/LocationForm';
 import { Context as ResultsContext } from '../context/ResultsContext';
@@ -31,7 +31,13 @@ const HomeScreen = ({ navigation }) => {
         keyExtractor={item => item.id}
         horizontal
         renderItem={({ item }) => {
-          return <ResultsDetails result={item} />;
+          return (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Details', { id: item.id })}
+            >
+              <ResultsDetails result={item} />
+            </TouchableOpacity>
+          );
         }}
       />
       <Map />

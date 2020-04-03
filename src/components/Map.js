@@ -30,24 +30,39 @@ const chooseInitialRegion = results => {
   };
 };
 
+const getResultRegion = results => {
+  if (results.length === 1) {
+    const { longitude, latitude } = results[0];
+    return {
+      longitude,
+      latitude,
+      latitudeDelta: 0.01,
+      longitudeDelta: 0.01
+    };
+  } else {
+    const coordStats = chooseInitialRegion(results);
+    const latDelta = (coordStats.latMax - coordStats.latMin) * 2;
+    const longDelta = (coordStats.longMax - coordStats.longMin) * 2;
+    return {
+      longitude: coordStats.longCenter,
+      latitude: coordStats.latCenter,
+      latitudeDelta: Math.max(latDelta, longDelta),
+      longitudeDelta: Math.max(latDelta, longDelta)
+    };
+  }
+};
+
 const Map = () => {
   const { state } = React.useContext(ResultsContext);
 
   if (state.results.length === 0) {
     return null;
   }
-  const coordStats = chooseInitialRegion(state.results);
-  const latDelta = (coordStats.latMax - coordStats.latMin) * 2;
-  const longDelta = (coordStats.longMax - coordStats.longMin) * 2;
-  const initialRegion = {
-    longitude: coordStats.longCenter,
-    latitude: coordStats.latCenter,
-    latitudeDelta: Math.max(latDelta, longDelta),
-    longitudeDelta: Math.max(latDelta, longDelta)
-  };
+  const region = getResultRegion(state.results);
+  console.log(region);
 
   return (
-    <MapView style={styles.mapStyle} initialRegion={initialRegion}>
+    <MapView style={styles.mapStyle} initialRegion={region} region={region}>
       {state.results.map(item => {
         return (
           <Marker
