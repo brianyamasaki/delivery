@@ -3,53 +3,30 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { Button } from 'react-native-elements';
 import { FontAwesome } from '@expo/vector-icons';
 import catch22Api from '../api/catch22delivery';
+import { Context as CategoriesContext } from '../context/CategoryContext';
 
 const Categories = ({ style }) => {
-  const [categories, setCategories] = React.useState([]);
-  const [errorMsg, setErrorMsg] = React.useState('');
-
-  let indexAll = 0;
-  const getCategories = async () => {
-    try {
-      const response = await catch22Api.get('/categories', {
-        params: {
-          per_page: 50
-        }
-      });
-      setCategories(
-        response.data.map((cat, i) => {
-          if (cat.slug === 'all') {
-            indexAll = i;
-          }
-          return {
-            cat,
-            selected: i === indexAll ? true : false
-          };
-        })
-      );
-    } catch (err) {
-      setErrorMsg(err.message);
-    }
-  };
+  const { state, fetchCategories, toggleCategory } = React.useContext(
+    CategoriesContext
+  );
 
   React.useEffect(() => {
-    getCategories();
+    fetchCategories();
   }, []);
-
-  const handleButtonPress = iPressed => {};
-
+  if (state.categories.length === 0) {
+    return null;
+  }
   return (
     <View style={style}>
       <Text style={styles.headerStyle}>Categories</Text>
-      {errorMsg ? <Text>{errorMsg}</Text> : null}
+      {state.errorMsg ? <Text>{state.errorMsg}</Text> : null}
       <ScrollView
         style={styles.categoryBoxStyles}
         contentContainerStyle={styles.contentContainerStyle}
         horizontal
       >
-        {categories.map((item, i) => {
-          const cat = item.cat;
-          if (item.selected) {
+        {state.categories.map((cat, i) => {
+          if (state.selectedCategories[i]) {
             return (
               <Button
                 key={cat.id}
@@ -63,6 +40,7 @@ const Categories = ({ style }) => {
                     style={{ color: 'white', paddingLeft: 3 }}
                   />
                 }
+                onPress={() => toggleCategory(i)}
               />
             );
           }
@@ -72,6 +50,7 @@ const Categories = ({ style }) => {
               style={styles.itemStyle}
               title={cat.name}
               type='outline'
+              onPress={() => toggleCategory(i)}
             />
           );
         })}

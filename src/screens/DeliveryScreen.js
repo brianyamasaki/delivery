@@ -19,7 +19,7 @@ const DeliveryScreen = () => {
     try {
       const response = await deliveryApi.get('/posts', {
         params: {
-          per_page: 50
+          per_page: 20
         }
       });
       setPosts(response.data);
