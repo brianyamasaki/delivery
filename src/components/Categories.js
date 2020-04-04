@@ -1,11 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { Button } from 'react-native-elements';
+import { FontAwesome } from '@expo/vector-icons';
 import catch22Api from '../api/catch22delivery';
 
-const Categories = () => {
+const Categories = ({ style }) => {
   const [categories, setCategories] = React.useState([]);
   const [errorMsg, setErrorMsg] = React.useState('');
 
+  let indexAll = 0;
   const getCategories = async () => {
     try {
       const response = await catch22Api.get('/categories', {
@@ -13,7 +16,17 @@ const Categories = () => {
           per_page: 50
         }
       });
-      setCategories(response.data);
+      setCategories(
+        response.data.map((cat, i) => {
+          if (cat.slug === 'all') {
+            indexAll = i;
+          }
+          return {
+            cat,
+            selected: i === indexAll ? true : false
+          };
+        })
+      );
     } catch (err) {
       setErrorMsg(err.message);
     }
@@ -23,8 +36,10 @@ const Categories = () => {
     getCategories();
   }, []);
 
+  const handleButtonPress = iPressed => {};
+
   return (
-    <View>
+    <View style={style}>
       <Text style={styles.headerStyle}>Categories</Text>
       {errorMsg ? <Text>{errorMsg}</Text> : null}
       <ScrollView
@@ -32,20 +47,48 @@ const Categories = () => {
         contentContainerStyle={styles.contentContainerStyle}
         horizontal
       >
-        {categories.map((cat, i) => (
-          <Text key={cat.id} style={styles.itemStyle}>
-            {cat.name}
-          </Text>
-        ))}
+        {categories.map((item, i) => {
+          const cat = item.cat;
+          if (item.selected) {
+            return (
+              <Button
+                key={cat.id}
+                style={styles.itemStyle}
+                title={cat.name}
+                iconRight
+                icon={
+                  <FontAwesome
+                    name='check'
+                    size={20}
+                    style={{ color: 'white', paddingLeft: 3 }}
+                  />
+                }
+              />
+            );
+          }
+          return (
+            <Button
+              key={cat.id}
+              style={styles.itemStyle}
+              title={cat.name}
+              type='outline'
+            />
+          );
+        })}
       </ScrollView>
     </View>
   );
 };
 
+Categories.defaultProps = {
+  style: {}
+};
+
 const styles = StyleSheet.create({
   headerStyle: {
     fontSize: 24,
-    textAlign: 'center'
+    textAlign: 'center',
+    marginBottom: 5
   },
   categoryBoxStyles: {
     flexDirection: 'row',
@@ -56,9 +99,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   itemStyle: {
-    padding: 8,
-    borderRadius: 8,
-    borderWidth: 1,
     margin: 4
   }
 });

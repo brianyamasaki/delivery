@@ -4,7 +4,8 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  SafeAreaView
 } from 'react-native';
 import { Text, Button, Card, Image } from 'react-native-elements';
 import LocationForm from '../components/LocationForm';
@@ -18,38 +19,40 @@ const HomeScreen = ({ navigation }) => {
   const { state, fetchResults } = React.useContext(ResultsContext);
   let flatListRef;
   return (
-    <ScrollView style={styles.containerStyle}>
-      <LocationForm
-        value={location}
-        onChangeText={setLocation}
-        onSubmit={() => {
-          fetchResults({ location }, 'delivery');
-          // flatListRef.scrollToIndex({ index: 0 });
-        }}
-      />
-      {state.errorMessage ? <Text>{state.errorMessage}</Text> : null}
-      {state.refreshing ? <ActivityIndicator size={30} /> : null}
-      <FlatList
-        style={styles.listStyle}
-        refreshing={state.refreshing}
-        ref={ref => {
-          flatListRef = ref;
-        }}
-        data={state.results}
-        keyExtractor={item => item.id}
-        horizontal
-        renderItem={({ item }) => {
-          return (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Details', { id: item.id })}
-            >
-              <ResultsDetails result={item} />
-            </TouchableOpacity>
-          );
-        }}
-      />
-      <Map />
-    </ScrollView>
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView style={styles.containerStyle}>
+        <LocationForm
+          value={location}
+          onChangeText={setLocation}
+          onSubmit={() => {
+            fetchResults({ location }, 'delivery');
+            // flatListRef.scrollToIndex({ index: 0 });
+          }}
+        />
+        {state.errorMessage ? <Text>{state.errorMessage}</Text> : null}
+        {state.refreshing ? <ActivityIndicator size={30} /> : null}
+        <FlatList
+          style={styles.listStyle}
+          refreshing={state.refreshing}
+          ref={ref => {
+            flatListRef = ref;
+          }}
+          data={state.results}
+          keyExtractor={item => item.id}
+          horizontal
+          renderItem={({ item }) => {
+            return (
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Details', { id: item.id })}
+              >
+                <ResultsDetails result={item} />
+              </TouchableOpacity>
+            );
+          }}
+        />
+        <Map />
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

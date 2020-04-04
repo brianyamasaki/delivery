@@ -6,6 +6,8 @@ import { Provider as ResultsProvider } from './src/context/ResultsContext';
 import SplashScreen from './src/screens/SplashScreen';
 import DetailsScreen from './src/screens/DetailsScreen';
 import HomeScreen from './src/screens/HomeScreen';
+import DeliveryScreen from './src/screens/DeliveryScreen';
+import ChooseFlowScreen from './src/screens/ChooseFlowScreen';
 
 const Stack = createStackNavigator();
 
@@ -23,12 +25,18 @@ function App() {
   ) : (
     <ResultsProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName='Home'>
+        <Stack.Navigator initialRouteName='ChooseFlow'>
           <Stack.Screen
-            name='Home'
-            component={HomeScreen}
-            options={{ title: 'Choices' }}
+            name='ChooseFlow'
+            component={ChooseFlowScreen}
+            options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name='Delivery'
+            component={DeliveryScreen}
+            options={{ title: 'Catch-22 Delivery' }}
+          />
+          <Stack.Screen name='Home' component={HomeScreen} />
           <Stack.Screen
             name='Details'
             component={DetailsScreen}

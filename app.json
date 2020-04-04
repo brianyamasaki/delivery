@@ -23,6 +23,8 @@
     ],
     "ios": {
       "supportsTablet": true
-    }
+    },
+    "description": "quick demo of food delivery search application",
+    "githubUrl": "https://github.com/brianyamasaki/delivery"
   }
 }
