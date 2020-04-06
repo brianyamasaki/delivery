@@ -6,10 +6,9 @@ import catch22deliveryApi from '../api/catch22delivery';
 const DeliveryListItem = ({ post }) => {
   const [mediaJson, setMediaJson] = React.useState({});
   const [errorMsg, setErrorMsg] = React.useState('');
-  const url = post._links['wp:featuredmedia'][0].href;
   const getMediaJson = async () => {
     try {
-      const response = await catch22deliveryApi(url);
+      const response = await catch22deliveryApi(post.mediaLinkUrl);
       setMediaJson(response.data);
     } catch (err) {
       setErrorMsg(err.message);
@@ -35,14 +34,14 @@ const DeliveryListItem = ({ post }) => {
 
 const styles = StyleSheet.create({
   containerStyle: {
-    marginHorizontal: 4
+    marginHorizontal: 2
   },
   headerStyle: {
     textAlign: 'center'
   },
   imageStyle: {
-    width: 200,
-    height: 200
+    width: 170,
+    height: 170
   }
 });
 

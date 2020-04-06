@@ -1,19 +1,21 @@
 import { AsyncStorage } from 'react-native';
 import createDataContext from './createDataContext';
 import catch22deliveryApi from '../api/catch22delivery';
+import { ASYNC_STORAGE_KEY_CATEGORIES } from '../constants';
 
 const INITIAL_STATE = {
   errorMessage: '',
   refreshing: false,
   categories: [],
-  selectedCategories: []
+  selectedCategories: [],
+  selString: ''
 };
 const FETCH_START = 'fetch_start';
 const FETCH_CATEGORIES = 'fetch_results';
 const FETCH_ERROR = 'fetch_error';
 const TOGGLE_SELECTION = 'toggle_selection';
 
-const getSelectionArray = categories => {
+const getSelectionArray = (categories) => {
   const selectionArray = new Array(categories.length);
   categories.forEach(
     (item, i) => (selectionArray[i] = item.slug === 'all' ? true : false)
@@ -47,7 +49,23 @@ const getToggledSelectedCategories = (
   return newSelected;
 };
 
+const categoriesToString = (categories, selectedCategories) => {
+  const iAll = categories.findIndex((cat) => cat.slug === 'all');
+  if (selectedCategories[iAll]) {
+    return null;
+  }
+  const selStrings = [];
+  selectedCategories.forEach((sel, i) => {
+    if (sel) {
+      selStrings.push(categories[i].id);
+    }
+  });
+  return selStrings.join(',');
+};
+
 const categoryReducer = (state, action) => {
+  let selectedCategories;
+  let selString;
   switch (action.type) {
     case FETCH_START:
       return {
@@ -55,12 +73,15 @@ const categoryReducer = (state, action) => {
         refreshing: true
       };
     case FETCH_CATEGORIES:
+      selectedCategories = getSelectionArray(action.payload);
+      selString = categoriesToString(action.payload, selectedCategories);
       return {
         ...state,
         errorMessage: '',
         refreshing: false,
         categories: action.payload,
-        selectedCategories: getSelectionArray(action.payload)
+        selectedCategories,
+        selString
       };
     case FETCH_ERROR:
       return {
@@ -69,19 +90,22 @@ const categoryReducer = (state, action) => {
         refreshing: false
       };
     case TOGGLE_SELECTION:
+      selectedCategories = getToggledSelectedCategories(
+        action.payload,
+        state.selectedCategories,
+        state.categories
+      );
+      selString = categoriesToString(state.categories, selectedCategories);
       return {
         ...state,
-        selectedCategories: getToggledSelectedCategories(
-          action.payload,
-          state.selectedCategories,
-          state.categories
-        )
+        selectedCategories,
+        selString
       };
     default:
       return state;
   }
 };
-const getEditedCategoryList = responseData => {
+const getEditedCategoryList = (responseData) => {
   return responseData.map(({ name, slug, id }) => {
     return {
       name,
@@ -90,22 +114,22 @@ const getEditedCategoryList = responseData => {
     };
   });
 };
-const STORAGE_KEY = 'categoryObject';
 const dayInMilliseconds = 1000 * 60 * 60 * 24;
 
-const fetchCategories = dispatch => async () => {
+const fetchCategories = (dispatch) => async () => {
   dispatch({
     type: FETCH_START
   });
   try {
-    const savedCategories = await AsyncStorage.getItem(STORAGE_KEY);
+    const savedCategories = JSON.parse(
+      await AsyncStorage.getItem(ASYNC_STORAGE_KEY_CATEGORIES)
+    );
     const expiryTime = new Date().getTime() - dayInMilliseconds;
     if (savedCategories && savedCategories.fetchTime > expiryTime) {
       dispatch({
         type: FETCH_CATEGORIES,
         payload: savedCategories.categories
       });
-      console.log(`found async copy ${savedCategories.categories}`);
       return;
     }
   } catch (err) {
@@ -122,14 +146,16 @@ const fetchCategories = dispatch => async () => {
       type: FETCH_CATEGORIES,
       payload: editedCategories
     });
+    const fetchTime = new Date().getTime();
     await AsyncStorage.setItem(
-      STORAGE_KEY,
+      ASYNC_STORAGE_KEY_CATEGORIES,
       JSON.stringify({
-        fetchTime: new Date().getTime(),
+        fetchTime,
         categories: editedCategories
       })
     );
   } catch (err) {
+    console.log(err.message);
     dispatch({
       type: FETCH_ERROR,
       payload: err.message
@@ -137,7 +163,7 @@ const fetchCategories = dispatch => async () => {
   }
 };
 
-const toggleCategory = dispatch => iCat => {
+const toggleCategory = (dispatch) => (iCat) => {
   dispatch({
     type: TOGGLE_SELECTION,
     payload: iCat

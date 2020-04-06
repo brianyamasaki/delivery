@@ -17,7 +17,6 @@ import Map from '../components/Map';
 const HomeScreen = ({ navigation }) => {
   const [location, setLocation] = React.useState('');
   const { state, fetchResults } = React.useContext(ResultsContext);
-  let flatListRef;
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView style={styles.containerStyle}>
@@ -34,11 +33,8 @@ const HomeScreen = ({ navigation }) => {
         <FlatList
           style={styles.listStyle}
           refreshing={state.refreshing}
-          ref={ref => {
-            flatListRef = ref;
-          }}
           data={state.results}
-          keyExtractor={item => item.id}
+          keyExtractor={(item) => item.id}
           horizontal
           renderItem={({ item }) => {
             return (

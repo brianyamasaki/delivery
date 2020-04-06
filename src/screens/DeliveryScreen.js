@@ -8,44 +8,25 @@ import {
 } from 'react-native';
 import { Text } from 'react-native-elements';
 import Categories from '../components/Categories';
+import PostsList from '../components/PostsList';
 import deliveryApi from '../api/catch22delivery';
-import DeliveryListItem from '../components/DeliveryListItem';
+import { Context as CategoriesContext } from '../context/CategoryContext';
 
 const DeliveryScreen = () => {
-  const [posts, setPosts] = React.useState([]);
-  const [errorMsg, setErrorMsg] = React.useState('');
+  const { state } = React.useContext(CategoriesContext);
 
-  const getPosts = async () => {
-    try {
-      const response = await deliveryApi.get('/posts', {
-        params: {
-          per_page: 20
-        }
-      });
-      setPosts(response.data);
-    } catch (err) {
-      setErrorMsg(err.message);
-    }
-  };
-  React.useEffect(() => {
-    getPosts();
-  }, []);
-
-  if (posts.length === 0) {
-    return <ActivityIndicator size={30} />;
-  }
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <Categories style={styles.categoryStyles} />
-      {errorMsg ? <Text>{errorMsg}</Text> : null}
-      <FlatList
+      <PostsList catState={state} />
+      {/* <FlatList
         horizontal
-        data={posts}
-        keyExtractor={post => post.slug}
+        data={state.posts}
+        keyExtractor={(post) => post.slug}
         renderItem={({ item }) => {
           return <DeliveryListItem post={item} />;
         }}
-      />
+      /> */}
     </SafeAreaView>
   );
 };

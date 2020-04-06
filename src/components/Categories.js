@@ -13,6 +13,7 @@ const Categories = ({ style }) => {
   React.useEffect(() => {
     fetchCategories();
   }, []);
+
   if (state.categories.length === 0) {
     return null;
   }
