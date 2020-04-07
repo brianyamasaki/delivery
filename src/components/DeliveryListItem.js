@@ -7,11 +7,15 @@ const DeliveryListItem = ({ post }) => {
   const [mediaJson, setMediaJson] = React.useState({});
   const [errorMsg, setErrorMsg] = React.useState('');
   const getMediaJson = async () => {
-    try {
-      const response = await catch22deliveryApi(post.mediaLinkUrl);
-      setMediaJson(response.data);
-    } catch (err) {
-      setErrorMsg(err.message);
+    if (post.mediaLinkUrl) {
+      try {
+        const response = await catch22deliveryApi(post.mediaLinkUrl);
+        setMediaJson(response.data);
+      } catch (err) {
+        setErrorMsg(err.message);
+      }
+    } else {
+      setErrorMsg('No Image Available');
     }
   };
   React.useEffect(() => {
@@ -25,12 +29,19 @@ const DeliveryListItem = ({ post }) => {
           source={{ uri: mediaJson.media_details.sizes.full.source_url }}
           style={styles.imageStyle}
         />
+      ) : errorMsg ? (
+        <View style={styles.backupTextContainer}>
+          <Text style={styles.backupTextStyle}>{post.title}</Text>
+        </View>
       ) : (
         <ActivityIndicator size={30} />
       )}
     </View>
   );
 };
+
+const WIDTH = 170;
+const HEIGHT = 170;
 
 const styles = StyleSheet.create({
   containerStyle: {
@@ -40,8 +51,17 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   imageStyle: {
-    width: 170,
-    height: 170
+    width: WIDTH,
+    height: HEIGHT
+  },
+  backupTextContainer: {
+    width: WIDTH,
+    height: HEIGHT,
+    justifyContent: 'center'
+  },
+  backupTextStyle: {
+    textAlign: 'center',
+    fontSize: 20
   }
 });
 

@@ -41,18 +41,30 @@ const postsReducer = (state, action) => {
 //   return;
 // }
 const getEditedPostsList = (posts) => {
-  return posts.map(({ id, slug, title, content, categories, _links }) => {
-    return {
-      id,
-      slug,
-      title: title.rendered,
-      content: content.rendered,
-      categories,
-      mediaLinkUrl: _links['wp:featuredmedia'][0].href
-      // orderUrl:
-      // message
-    };
-  });
+  // console.log('getEditedPostsList: ', posts);
+  let editedPosts = [];
+  try {
+    editedPosts = posts.map(({ id, slug, title, categories, _links }) => {
+      const mediaLinkUrl =
+        _links && _links['wp:featuredmedia'] && _links['wp:featuredmedia'][0]
+          ? _links['wp:featuredmedia'][0].href
+          : null;
+      return {
+        id,
+        slug,
+        title: title.rendered,
+        // content: content.rendered,
+        categories,
+        mediaLinkUrl
+        // orderUrl:
+        // message
+      };
+    });
+  } catch (err) {
+    console.log(err.message);
+  }
+  console.log(editedPosts);
+  return editedPosts;
 };
 
 const dayInMilliseconds = 1000 * 60 * 60 * 24;
@@ -89,6 +101,7 @@ const fetchPosts = (dispatch) => async (catString) => {
       params
     });
     const editedCategories = getEditedPostsList(response.data);
+    console.log(editedCategories);
     dispatch({
       type: FETCH_POSTS,
       payload: editedCategories

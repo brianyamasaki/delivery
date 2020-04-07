@@ -60,7 +60,7 @@ const categoriesToString = (categories, selectedCategories) => {
       selStrings.push(categories[i].id);
     }
   });
-  return selStrings.join(',');
+  return selStrings.join(', ');
 };
 
 const categoryReducer = (state, action) => {

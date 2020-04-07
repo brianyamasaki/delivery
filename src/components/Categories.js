@@ -1,14 +1,26 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Button } from 'react-native-elements';
-import { FontAwesome } from '@expo/vector-icons';
 import catch22Api from '../api/catch22delivery';
 import { Context as CategoriesContext } from '../context/CategoryContext';
+import CategoryButton from './CategoryButton';
+import { FontAwesome } from '@expo/vector-icons';
 
 const Categories = ({ style }) => {
   const { state, fetchCategories, toggleCategory } = React.useContext(
     CategoriesContext
   );
+  const [showDropdown, setShowDropdown] = React.useState(false);
+
+  const textFromSelectedCategories = () => {
+    const catStrings = [];
+    state.selectedCategories.forEach((sel, i) => {
+      if (sel) {
+        catStrings.push(state.categories[i].name);
+      }
+    });
+    return catStrings.join(', ');
+  };
 
   React.useEffect(() => {
     fetchCategories();
@@ -19,43 +31,39 @@ const Categories = ({ style }) => {
   }
   return (
     <View style={style}>
-      <Text style={styles.headerStyle}>Categories</Text>
+      <TouchableOpacity onPress={() => setShowDropdown(!showDropdown)}>
+        <View style={styles.rowStyle}>
+          {showDropdown ? (
+            <FontAwesome name='chevron-up' size={30} />
+          ) : (
+            <FontAwesome name='chevron-down' size={30} />
+          )}
+          <View>
+            <Text style={styles.headerStyle}>Categories</Text>
+            <Text style={styles.subHeadStyle}>
+              {textFromSelectedCategories()}
+            </Text>
+          </View>
+          {showDropdown ? (
+            <FontAwesome name='chevron-up' size={30} />
+          ) : (
+            <FontAwesome name='chevron-down' size={30} />
+          )}
+        </View>
+      </TouchableOpacity>
       {state.errorMsg ? <Text>{state.errorMsg}</Text> : null}
-      <ScrollView
-        style={styles.categoryBoxStyles}
-        contentContainerStyle={styles.contentContainerStyle}
-        horizontal
-      >
-        {state.categories.map((cat, i) => {
-          if (state.selectedCategories[i]) {
-            return (
-              <Button
-                key={cat.id}
-                style={styles.itemStyle}
-                title={cat.name}
-                iconRight
-                icon={
-                  <FontAwesome
-                    name='check'
-                    size={20}
-                    style={{ color: 'white', paddingLeft: 3 }}
-                  />
-                }
-                onPress={() => toggleCategory(i)}
-              />
-            );
-          }
-          return (
-            <Button
+      {!showDropdown ? null : (
+        <View style={styles.categoryBoxStyles}>
+          {state.categories.map((cat, i) => (
+            <CategoryButton
               key={cat.id}
-              style={styles.itemStyle}
-              title={cat.name}
-              type='outline'
-              onPress={() => toggleCategory(i)}
+              cat={cat}
+              isSelected={state.selectedCategories[i]}
+              toggleCategory={() => toggleCategory(i)}
             />
-          );
-        })}
-      </ScrollView>
+          ))}
+        </View>
+      )}
     </View>
   );
 };
@@ -66,14 +74,24 @@ Categories.defaultProps = {
 
 const styles = StyleSheet.create({
   headerStyle: {
-    fontSize: 24,
+    fontSize: 22,
+    marginBottom: 5,
+    textAlign: 'center'
+  },
+  rowStyle: {
+    flexDirection: 'row',
+    justifyContent: 'space-between'
+  },
+  subHeadStyle: {
+    fontSize: 18,
     textAlign: 'center',
-    marginBottom: 5
+    marginBottom: 2
   },
   categoryBoxStyles: {
     flexDirection: 'row',
-    flexWrap: 'wrap'
-    // justifyContent: 'center'
+    flexWrap: 'wrap',
+    alignContent: 'center',
+    justifyContent: 'center'
   },
   contentContainerStyle: {
     justifyContent: 'center'

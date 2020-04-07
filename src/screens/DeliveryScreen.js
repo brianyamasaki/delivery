@@ -19,14 +19,6 @@ const DeliveryScreen = () => {
     <SafeAreaView style={{ flex: 1 }}>
       <Categories style={styles.categoryStyles} />
       <PostsList catState={state} />
-      {/* <FlatList
-        horizontal
-        data={state.posts}
-        keyExtractor={(post) => post.slug}
-        renderItem={({ item }) => {
-          return <DeliveryListItem post={item} />;
-        }}
-      /> */}
     </SafeAreaView>
   );
 };

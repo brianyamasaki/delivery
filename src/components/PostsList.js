@@ -10,7 +10,7 @@ const PostsList = ({ catState }) => {
     fetchPosts(catState.selString);
   }, [catState.selString]);
 
-  if (state.posts.length === 0) {
+  if (state.refreshing) {
     return <ActivityIndicator size={60} />;
   }
   return (
